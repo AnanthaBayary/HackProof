@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Register - HackProof</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center">Create Secure Account</h2>
+                <div class="alert alert-info">
+                    🔒 Password requirements: min 8 characters<br>
+                    🔒 Username: 3-20 chars (letters, numbers, underscore)
+                </div>
+                <form method="POST">
+                    <div class="mb-3">
+                        <input type="text" name="username" class="form-control" placeholder="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" name="password" class="form-control" placeholder="Password (min 8 chars)" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="/login">Already have an account? Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

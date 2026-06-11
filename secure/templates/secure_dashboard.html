@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Dashboard - HackProof</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Welcome, {{ username }}</h1>
+        <div class="alert alert-success">💰 Balance: ${{ balance }}</div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Transfer Money</h3>
+                <form method="POST" action="/transfer">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <input type="text" name="to_account" class="form-control" placeholder="Recipient Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="number" name="amount" class="form-control" placeholder="Amount (1-10000)" min="0.01" max="10000" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Transfer</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -12,6 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///secure_bank.db'
 db = SQLAlchemy(app)
 ph = PasswordHasher()
 
+# CSRF Token function
 def generate_csrf_token():
     if '_csrf_token' not in session:
         session['_csrf_token'] = secrets.token_hex(32)
@@ -42,10 +43,14 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
+        # Input validation
         if not re.match(r'^[a-zA-Z0-9_]{3,20}$', username):
             return "Username must be 3-20 alphanumeric characters"
         if len(password) < 8:
             return "Password must be at least 8 characters"
+        
+        # Hash password
         password_hash = ph.hash(password)
         user = User(username=username, password_hash=password_hash)
         db.session.add(user)
@@ -58,6 +63,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
         user = User.query.filter_by(username=username).first()
         if user:
             if user.failed_logins >= 5:
@@ -87,22 +93,31 @@ def dashboard():
 @app.route('/transfer', methods=['POST'])
 @login_required
 def transfer():
+    # CSRF Protection
     csrf_token_form = request.form.get('_csrf_token')
     if csrf_token_form != session.get('_csrf_token'):
         abort(403)
+    
     to_account = request.form['to_account']
     amount = float(request.form['amount'])
+    
+    # Input validation
     if amount <= 0 or amount > 10000:
         return "Invalid amount"
+    
     recipient = User.query.filter_by(username=to_account).first()
     if not recipient:
         return "Recipient not found"
+    
     sender = User.query.filter_by(username=session['username']).first()
     if sender.balance < amount:
         return "Insufficient funds"
+    
+    # Safe transaction
     sender.balance -= amount
     recipient.balance += amount
     db.session.commit()
+    
     return redirect(url_for('dashboard'))
 
 @app.route('/logout')
@@ -114,4 +129,3 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=False, host='0.0.0.0', port=5001)
-EOF

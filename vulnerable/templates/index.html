@@ -1,143 +1,20 @@
-# index.html
-cat > vulnerable/templates/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
-    <title>HackProof - Banking</title>
+    <title>HackProof - Vulnerable Banking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>🔓 HackProof v1 - Vulnerable Version</h1>
+    <div class="container mt-5 text-center">
+        <h1 class="text-danger">🔓 HackProof v1 - VULNERABLE</h1>
         <p class="lead">This version has SQL Injection, XSS, and IDOR vulnerabilities!</p>
-        <a href="/register" class="btn btn-primary">Register</a>
-        <a href="/login" class="btn btn-secondary">Login</a>
-    </div>
-</body>
-</html>
-EOF
-
-# login.html
-cat > vulnerable/templates/login.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Login (Try SQL Injection!)</h2>
-        <div class="alert alert-info">
-            <strong>💡 Try this:</strong> Username: <code>admin' OR '1'='1' --</code><br>
-            Password: anything
+        <div class="mt-4">
+            <a href="/register" class="btn btn-primary btn-lg">Register</a>
+            <a href="/login" class="btn btn-secondary btn-lg">Login</a>
         </div>
-        <form method="POST">
-            <div class="mb-3">
-                <input type="text" name="username" class="form-control" placeholder="Username">
-            </div>
-            <div class="mb-3">
-                <input type="password" name="password" class="form-control" placeholder="Password">
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-        <a href="/register" class="btn btn-link">Register</a>
+        <div class="mt-5 alert alert-warning">
+            <strong>⚠️ Warning:</strong> This app is intentionally vulnerable for educational purposes.
+        </div>
     </div>
 </body>
 </html>
-EOF
-
-# dashboard.html
-cat > vulnerable/templates/dashboard.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h1>Welcome, {{ username | safe }}</h1>
-        <div class="alert alert-warning">Balance: ${{ balance }}</div>
-        
-        <h3>Transfer Money</h3>
-        <form method="POST" action="/transfer">
-            <div class="mb-3">
-                <input type="text" name="to_account" class="form-control" placeholder="Recipient Username">
-            </div>
-            <div class="mb-3">
-                <input type="number" name="amount" class="form-control" placeholder="Amount (try negative numbers!)">
-            </div>
-            <button type="submit" class="btn btn-warning">Transfer</button>
-        </form>
-        
-        <h3>Search</h3>
-        <form method="GET" action="/search">
-            <div class="mb-3">
-                <input type="text" name="q" class="form-control" placeholder="Search... (try &lt;script&gt;alert(1)&lt;/script&gt;)">
-            </div>
-            <button type="submit" class="btn btn-info">Search</button>
-        </form>
-        
-        <a href="/logout" class="btn btn-danger mt-3">Logout</a>
-    </div>
-</body>
-</html>
-EOF
-
-# search.html
-cat > vulnerable/templates/search.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Search - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Search Results for: {{ query | safe }}</h2>
-        <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
-    </div>
-</body>
-</html>
-EOF
-
-# profile.html
-cat > vulnerable/templates/profile.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Profile - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>User Profile: {{ user.username }}</h2>
-        <p>Balance: ${{ user.balance }}</p>
-        <a href="/dashboard" class="btn btn-secondary">Back</a>
-    </div>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Register</h2>
-        <form method="POST">
-            <div class="mb-3">
-                <input type="text" name="username" class="form-control" placeholder="Username" required>
-            </div>
-            <div class="mb-3">
-                <input type="password" name="password" class="form-control" placeholder="Password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
-        <a href="/login" class="btn btn-link">Already have an account?</a>
-    </div>
-</body>
-</html>
-EOF
