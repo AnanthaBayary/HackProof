@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - HackProof</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .vulnerable-mode { border-left: 5px solid #dc3545; }
+        .secure-mode { border-left: 5px solid #198754; }
+        .code-block { background: #f4f4f4; padding: 10px; border-radius: 5px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">🔐 HackProof</a>
+            <div class="ms-auto">
+                <span class="badge bg-{{ 'danger' if mode == 'vulnerable' else 'success' }}">
+                    {{ '🔴 Vulnerable' if mode == 'vulnerable' else '🟢 Secure' }}
+                </span>
+                <a href="/" class="btn btn-outline-light btn-sm ms-2">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Registration Form -->
+            <div class="col-md-6">
+                <div class="card {{ 'vulnerable-mode' if mode == 'vulnerable' else 'secure-mode' }}">
+                    <div class="card-header">
+                        <h4>Register</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if mode == 'vulnerable' %}
+                            <div class="alert alert-warning">
+                                <strong>💡 Try XSS:</strong> 
+                                Enter <code>&lt;script&gt;alert('Hacked')&lt;/script&gt;</code> as username
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <strong>✅ Protected:</strong> XSS is blocked
+                            </div>
+                        {% endif %}
+
+                        <form method="POST">
+                            <input type="hidden" name="mode" value="{{ mode }}">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" 
+                                       placeholder="Choose a username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" 
+                                       placeholder="Choose a password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Register</button>
+                        </form>
+                        <div class="mt-3">
+                            <a href="/login?mode={{ mode }}">Already have an account? Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Content -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        📚 What is XSS?
+                    </div>
+                    <div class="card-body">
+                        {% if mode == 'vulnerable' %}
+                            <h5 class="text-warning">⚠️ Cross-Site Scripting (XSS)</h5>
+                            <p>XSS allows attackers to inject malicious scripts into web pages.</p>
+                            
+                            <h6>💀 How to Exploit:</h6>
+                            <p>Register with username containing JavaScript:</p>
+                            <div class="code-block">
+                                <code>
+                                    &lt;script&gt;alert('Hacked')&lt;/script&gt;
+                                </code>
+                            </div>
+                            <p>When you login, the script will execute!</p>
+                            
+                            <div class="alert alert-danger mt-3">
+                                <h6>⚠️ Impact:</h6>
+                                <ul>
+                                    <li>Steal cookies/sessions</li>
+                                    <li>Redirect to malicious sites</li>
+                                    <li>Steal user credentials</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="alert alert-success mt-3">
+                                <h6>✅ How to Fix:</h6>
+                                <p>Escape user input using <code>escape()</code> or <code>| safe</code> in templates:</p>
+                                <div class="code-block">
+                                    <code>
+                                        {{ '{{ username | escape }}' }}  {# Escapes HTML #}
+                                    </code>
+                                </div>
+                            </div>
+                        {% else %}
+                            <h5 class="text-success">🟢 XSS is Blocked!</h5>
+                            <p>The secure version escapes all user input:</p>
+                            <div class="code-block">
+                                <code>
+                                    {{ '{{ username | escape }}' }}
+                                </code>
+                            </div>
+                            <p>This converts <code>&lt;script&gt;</code> to <code>&amp;lt;script&amp;gt;</code></p>
+                            
+                            <div class="alert alert-info mt-3">
+                                <h6>🔍 Try It Yourself:</h6>
+                                <p>Try registering as <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></p>
+                                <p>It will show as plain text, not execute!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

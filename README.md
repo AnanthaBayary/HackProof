@@ -1,19 +1,16 @@
-# 🔒 HackProof - From Vulnerable to Unbreakable
+# 🔐 HackProof - Cybersecurity Learning Platform
 
-A dual-version banking platform demonstrating OWASP Top 10 vulnerabilities and their complete remediation.
+Learn OWASP Top 10 vulnerabilities by doing hands-on demos!
 
-## 🎯 Versions
+## 🎯 What You'll Learn
 
-| Version | Port | Security |
-|---------|------|----------|
-| **HackProof v1** (Vulnerable) | 5000 | SQL Injection, XSS, IDOR |
-| **HackProof v2** (Secure) | 5001 | Argon2, CSRF tokens, Input Validation |
+- **SQL Injection** - Bypass login without password
+- **Cross-Site Scripting (XSS)** - Inject JavaScript into pages
+- **IDOR** - View other users' private data
+- **Business Logic Flaws** - Exploit transfer functions
 
 ## 🚀 Quick Start
 
-### Vulnerable Version
+### 1. Install Dependencies
 ```bash
-cd vulnerable
-pip install -r requirements.txt
-python app.py
-# Visit http://localhost:5000
+pip install flask flask-sqlalchemy
