@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}CSRF Demo{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card {{ 'vulnerable-mode' if mode == 'vulnerable' else 'secure-mode' }}">
+            <div class="card-header"><h4>🎭 "totally-legit-prizes.com"</h4></div>
+            <div class="card-body">
+                <p>This page stands in for a malicious site somewhere else on the internet. It has no access to your
+                HackProof account, your password, or your session token &mdash; it can only get your browser to submit
+                a form to HackProof, and your browser will attach your login cookie automatically.</p>
+
+                {% if not session.get('username') %}
+                    <div class="alert alert-warning">You're not logged in, so this won't be able to do anything. <a href="/login?mode={{ mode }}">Log in</a> first, then come back.</div>
+                {% else %}
+                    <p>Logged in as <strong>{{ session['username'] }}</strong>. Click below to simulate landing on the malicious page.</p>
+                    <form method="POST" action="/transfer?mode={{ mode }}" id="evil-form">
+                        <input type="hidden" name="to_account" value="admin">
+                        <input type="hidden" name="amount" value="250">
+                        {# Note: no csrf_token field here — this "attacker" site has no way to know it #}
+                        <button type="submit" class="btn btn-dark w-100">🎁 Claim Your Free Prize</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">📚 What is CSRF?</div>
+            <div class="card-body">
+                {% if mode == 'vulnerable' %}
+                    <h5 class="text-danger">🔴 Cross-Site Request Forgery</h5>
+                    <p>The real <code>/transfer</code> endpoint doesn't check where the request came from or whether
+                    the person meant to send it &mdash; only that a valid session cookie is attached, which your
+                    browser does automatically on every request to the site.</p>
+                    <h6>💀 How to Exploit:</h6>
+                    <p>Trick a logged-in user into visiting a page with a hidden auto-submitting form pointed at
+                    <code>/transfer</code>. Their browser sends the request with their cookies attached &mdash; the
+                    server can't tell it apart from a request the user actually meant to make.</p>
+                    <div class="alert alert-danger mt-3">
+                        <h6>⚠️ Impact:</h6>
+                        <ul><li>Money moved without consent</li><li>Settings changed silently</li><li>Any state-changing action the victim's account can perform</li></ul>
+                    </div>
+                    <div class="alert alert-success mt-3">
+                        <h6>✅ How to Fix:</h6>
+                        <p>Issue a random, per-session token and require it on every state-changing form. An outside
+                        site can embed a form, but it can never know your token, so its submission fails.</p>
+                    </div>
+                {% else %}
+                    <h5 class="text-success">🟢 CSRF is Blocked!</h5>
+                    <p>The secure <code>/transfer</code> endpoint requires a <code>csrf_token</code> that matches the
+                    one stored in your session. This "attacker" page has no way to read that token, so its submission
+                    is rejected even though your cookies were sent along fine.</p>
+                    <div class="alert alert-info mt-3">
+                        <h6>🔍 Try It Yourself:</h6>
+                        <p>Click "Claim Your Free Prize" &mdash; the transfer is rejected.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

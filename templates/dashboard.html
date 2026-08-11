@@ -1,121 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .vulnerable-mode { border-left: 5px solid #dc3545; }
-        .secure-mode { border-left: 5px solid #198754; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">🔐 HackProof</a>
-            <div class="ms-auto">
-                <span class="badge bg-{{ 'danger' if mode == 'vulnerable' else 'success' }}">
-                    {{ '🔴 Vulnerable' if mode == 'vulnerable' else '🟢 Secure' }}
-                </span>
-                <a href="/" class="btn btn-outline-light btn-sm ms-2">Home</a>
-                <a href="/logout" class="btn btn-outline-danger btn-sm ms-1">Logout</a>
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card {{ 'vulnerable-mode' if mode == 'vulnerable' else 'secure-mode' }}">
+            <div class="card-header">
+                <h4>Welcome, {% if mode == 'vulnerable' %}{{ username | safe }}{% else %}{{ username }}{% endif %}!</h4>
             </div>
-        </div>
-    </nav>
+            <div class="card-body">
+                <div class="alert alert-success">💰 <strong>Balance:</strong> ${{ '%.2f' % balance }}</div>
 
-    <div class="container mt-4">
-        <div class="row">
-            <!-- Dashboard -->
-            <div class="col-md-6">
-                <div class="card {{ 'vulnerable-mode' if mode == 'vulnerable' else 'secure-mode' }}">
-                    <div class="card-header">
-                        <h4>Welcome, {{ username }}!</h4>
+                <h5>Transfer Money</h5>
+                {% if mode == 'vulnerable' %}
+                    <div class="alert alert-warning small">
+                        <strong>💡 Try:</strong> enter a negative number like <code>-500</code> to increase your balance,
+                        or visit the <a href="/csrf-demo?mode=vulnerable">CSRF demo page</a> while logged in.
                     </div>
-                    <div class="card-body">
-                        <div class="alert alert-success">
-                            💰 <strong>Balance:</strong> ${{ balance }}
-                        </div>
-
-                        <h5>Transfer Money</h5>
-                        {% if mode == 'vulnerable' %}
-                            <div class="alert alert-warning small">
-                                <strong>💡 Try:</strong> Enter a negative number like <code>-500</code> to increase your balance!
-                            </div>
-                        {% else %}
-                            <div class="alert alert-success small">
-                                <strong>✅ Secure:</strong> Amount must be between 1-10000
-                            </div>
-                        {% endif %}
-
-                        <form method="POST" action="/transfer?mode={{ mode }}">
-                            <div class="mb-3">
-                                <label class="form-label">Recipient Username</label>
-                                <input type="text" name="to_account" class="form-control" 
-                                       placeholder="Enter username" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Amount</label>
-                                <input type="number" name="amount" class="form-control" 
-                                       placeholder="Enter amount" required>
-                            </div>
-                            <button type="submit" class="btn btn-{{ 'danger' if mode == 'vulnerable' else 'success' }} w-100">
-                                {{ '🔴 Transfer' if mode == 'vulnerable' else '🟢 Transfer' }}
-                            </button>
-                        </form>
-
-                        <div class="mt-3">
-                            <a href="/profile/{{ username }}?mode={{ mode }}">View My Profile</a>
-                        </div>
+                {% else %}
+                    <div class="alert alert-success small">
+                        <strong>✅ Secure:</strong> amount must be between 1 and 10000, and every transfer needs a valid CSRF token.
                     </div>
-                </div>
-            </div>
+                {% endif %}
 
-            <!-- Learning Content -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        📚 Learn About This
+                <form method="POST" action="/transfer?mode={{ mode }}">
+                    {% if mode == 'secure' %}
+                        <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Recipient Username</label>
+                        <input type="text" name="to_account" class="form-control" placeholder="Enter username" required>
                     </div>
-                    <div class="card-body">
-                        {% if mode == 'vulnerable' %}
-                            <h5 class="text-danger">🔴 Business Logic Vulnerability</h5>
-                            <p>The transfer function has no validation:</p>
-                            <div class="code-block">
-                                <code>
-                                    sender.balance -= amount  # No validation!
-                                </code>
-                            </div>
-                            <h6>💀 How to Exploit:</h6>
-                            <p>Transfer <strong>negative</strong> amounts (e.g., -500)</p>
-                            <p>This actually <strong>increases</strong> your balance!</p>
-                            
-                            <div class="alert alert-success mt-3">
-                                <h6>✅ How to Fix:</h6>
-                                <ul>
-                                    <li>Validate amount > 0</li>
-                                    <li>Check if sender has enough balance</li>
-                                    <li>Check max transaction limits</li>
-                                </ul>
-                            </div>
-                        {% else %}
-                            <h5 class="text-success">🟢 Validation Added</h5>
-                            <p>The secure version validates transactions:</p>
-                            <div class="code-block">
-                                <code>
-                                    if amount <= 0 or amount > 10000:<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;return "Invalid amount"<br>
-                                    if sender.balance >= amount:<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;sender.balance -= amount
-                                </code>
-                            </div>
-                            <div class="alert alert-info mt-3">
-                                <h6>🔍 Try It Yourself:</h6>
-                                <p>Try transferring -500 - it will be rejected!</p>
-                            </div>
-                        {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" step="any" name="amount" class="form-control" placeholder="Enter amount" required>
                     </div>
-                </div>
+                    <button type="submit" class="btn btn-{{ 'danger' if mode == 'vulnerable' else 'success' }} w-100">
+                        {{ '🔴 Transfer' if mode == 'vulnerable' else '🟢 Transfer' }}
+                    </button>
+                </form>
+
+                <div class="mt-3"><a href="/profile/{{ username }}?mode={{ mode }}">View My Profile</a></div>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">📚 Learn About This</div>
+            <div class="card-body">
+                {% if mode == 'vulnerable' %}
+                    <h5 class="text-danger">🔴 Business Logic Vulnerability</h5>
+                    <p>The transfer function doesn't validate the amount at all:</p>
+                    <div class="code-block"><code>sender.balance -= amount  # no validation!</code></div>
+                    <h6>💀 How to Exploit:</h6>
+                    <p>Transfer a <strong>negative</strong> amount (e.g. <code>-500</code>) to any user &mdash; subtracting a
+                    negative number increases your own balance instead.</p>
+                    <div class="alert alert-success mt-3">
+                        <h6>✅ How to Fix:</h6>
+                        <ul>
+                            <li>Reject amounts &le; 0 or above a sane max</li>
+                            <li>Check the sender actually has enough balance</li>
+                            <li>Require a CSRF token so this can't be triggered from another site</li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <h5 class="text-success">🟢 Validation Added</h5>
+                    <p>The secure version validates the amount and the request itself:</p>
+                    <div class="code-block"><code>if amount &lt;= 0 or amount &gt; 10000:<br>&nbsp;&nbsp;&nbsp;&nbsp;reject()<br>if sender.balance &gt;= amount:<br>&nbsp;&nbsp;&nbsp;&nbsp;sender.balance -= amount</code></div>
+                    <div class="alert alert-info mt-3">
+                        <h6>🔍 Try It Yourself:</h6>
+                        <p>Try transferring <code>-500</code> &mdash; it's rejected before it ever touches the database.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

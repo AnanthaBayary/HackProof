@@ -1,199 +1,165 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>HackProof - Learn Cybersecurity</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .vulnerable-mode { border-left: 5px solid #dc3545; }
-        .secure-mode { border-left: 5px solid #198754; }
-        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); transition: all 0.3s; }
-        .mode-badge { font-size: 14px; padding: 5px 15px; border-radius: 20px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">🔐 HackProof</a>
-            <div class="ms-auto">
-                <span class="badge bg-{{ 'danger' if mode == 'vulnerable' else 'success' }} mode-badge">
-                    {{ '🔴 Vulnerable Mode' if mode == 'vulnerable' else '🟢 Secure Mode' }}
-                </span>
-            </div>
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <div class="text-center mb-5">
+        <h1>🛡️ Learn Cybersecurity by Doing</h1>
+        <p class="lead">Understand OWASP-style vulnerabilities with hands-on demos</p>
+
+        <div class="btn-group mt-3" role="group">
+            <a href="?mode=vulnerable" class="btn btn-danger btn-lg {{ 'active' if mode == 'vulnerable' else '' }}">
+                🔴 Vulnerable Mode
+            </a>
+            <a href="?mode=secure" class="btn btn-success btn-lg {{ 'active' if mode == 'secure' else '' }}">
+                🟢 Secure Mode
+            </a>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <!-- Header -->
-        <div class="text-center mb-5">
-            <h1>🛡️ Learn Cybersecurity by Doing</h1>
-            <p class="lead">Understand OWASP Top 10 vulnerabilities with hands-on demos</p>
-            
-            <!-- Mode Toggle -->
-            <div class="btn-group mt-3" role="group">
-                <a href="?mode=vulnerable" class="btn btn-danger btn-lg {{ 'active' if mode == 'vulnerable' else '' }}">
-                    🔴 Vulnerable Mode
-                </a>
-                <a href="?mode=secure" class="btn btn-success btn-lg {{ 'active' if mode == 'secure' else '' }}">
-                    🟢 Secure Mode
-                </a>
-            </div>
-            <p class="mt-2">
-                <small>
-                    {% if mode == 'vulnerable' %}
-                        🔴 Currently in Vulnerable Mode - Try to break the app!
-                    {% else %}
-                        🟢 Currently in Secure Mode - See how vulnerabilities are fixed!
-                    {% endif %}
-                </small>
-            </p>
-        </div>
-
-        <!-- Vulnerabilities Grid -->
-        <div class="row">
-            <!-- SQL Injection -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 card-hover {{ 'border-danger' if mode == 'vulnerable' else 'border-success' }}">
-                    <div class="card-header {{ 'bg-danger' if mode == 'vulnerable' else 'bg-success' }} text-white">
-                        🔍 SQL Injection
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Bypass Login Without Password</h5>
-                        <p class="card-text">Try to login as admin without knowing the password!</p>
-                        <div class="alert alert-{{ 'danger' if mode == 'vulnerable' else 'success' }} small">
-                            <strong>💡 Try:</strong> 
-                            <code>admin' OR '1'='1' --</code>
-                        </div>
-                        <a href="/login?mode={{ mode }}" class="btn btn-{{ 'danger' if mode == 'vulnerable' else 'success' }} w-100">
-                            {{ '🔴 Try SQL Injection' if mode == 'vulnerable' else '🟢 See Secure Version' }}
-                        </a>
-                    </div>
-                    <div class="card-footer bg-light">
-                        <small>📚 Learn: Parameterized Queries</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- XSS -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 card-hover {{ 'border-warning' if mode == 'vulnerable' else 'border-success' }}">
-                    <div class="card-header {{ 'bg-warning' if mode == 'vulnerable' else 'bg-success' }} text-white">
-                        ⚠️ Cross-Site Scripting (XSS)
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Inject JavaScript into Pages</h5>
-                        <p class="card-text">Register with malicious code and see it execute!</p>
-                        <div class="alert alert-{{ 'warning' if mode == 'vulnerable' else 'success' }} small">
-                            <strong>💡 Try:</strong> 
-                            <code>&lt;script&gt;alert('Hacked')&lt;/script&gt;</code>
-                        </div>
-                        <a href="/register?mode={{ mode }}" class="btn btn-{{ 'warning' if mode == 'vulnerable' else 'success' }} w-100">
-                            {{ '🔴 Try XSS' if mode == 'vulnerable' else '🟢 See Secure Version' }}
-                        </a>
-                    </div>
-                    <div class="card-footer bg-light">
-                        <small>📚 Learn: Input Sanitization</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- IDOR -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 card-hover {{ 'border-info' if mode == 'vulnerable' else 'border-success' }}">
-                    <div class="card-header {{ 'bg-info' if mode == 'vulnerable' else 'bg-success' }} text-white">
-                        🔑 IDOR (Insecure Direct Object Reference)
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">View Other Users' Data</h5>
-                        <p class="card-text">Access other users' profiles without permission!</p>
-                        <div class="alert alert-{{ 'info' if mode == 'vulnerable' else 'success' }} small">
-                            <strong>💡 Try:</strong> 
-                            <code>/profile/admin</code>
-                        </div>
-                        <a href="/profile/admin?mode={{ mode }}" class="btn btn-{{ 'info' if mode == 'vulnerable' else 'success' }} w-100">
-                            {{ '🔴 Try IDOR' if mode == 'vulnerable' else '🟢 See Secure Version' }}
-                        </a>
-                    </div>
-                    <div class="card-footer bg-light">
-                        <small>📚 Learn: Authorization Checks</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Learning Resources -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        📚 Learning Resources
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <h6>🎯 How This Works</h6>
-                                <ul>
-                                    <li><strong>Vulnerable Mode:</strong> See how attacks work</li>
-                                    <li><strong>Secure Mode:</strong> See how to fix them</li>
-                                    <li><strong>Try it yourself:</strong> Hands-on learning</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-4">
-                                <h6>💡 What You'll Learn</h6>
-                                <ul>
-                                    <li>SQL Injection attacks</li>
-                                    <li>Cross-Site Scripting (XSS)</li>
-                                    <li>IDOR vulnerabilities</li>
-                                    <li>Security best practices</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-4">
-                                <h6>🔐 After This Project</h6>
-                                <ul>
-                                    <li>Understand OWASP Top 10</li>
-                                    <li>Think like a security expert</li>
-                                    <li>Build secure applications</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Test Users -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-secondary text-white">
-                        👥 Test Accounts
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <strong>admin</strong><br>
-                                <small>password: admin123</small>
-                            </div>
-                            <div class="col-md-3">
-                                <strong>alice</strong><br>
-                                <small>password: alice123</small>
-                            </div>
-                            <div class="col-md-3">
-                                <strong>bob</strong><br>
-                                <small>password: bob123</small>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="/register?mode={{ mode }}" class="btn btn-primary btn-sm">Create New</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="mt-5 text-center text-muted">
-            <p>Built for learning purposes | OWASP Top 10 Demo</p>
-        </footer>
+        <p class="mt-2">
+            <small>
+                {% if mode == 'vulnerable' %}
+                    🔴 Currently in Vulnerable Mode &mdash; try to break the app!
+                {% else %}
+                    🟢 Currently in Secure Mode &mdash; see how each vulnerability gets fixed!
+                {% endif %}
+            </small>
+        </p>
     </div>
-</body>
-</html>
+
+    <div class="row">
+        <!-- SQL Injection -->
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 card-hover {{ 'border-danger' if mode == 'vulnerable' else 'border-success' }}">
+                <div class="card-header {{ 'bg-danger' if mode == 'vulnerable' else 'bg-success' }} text-white">
+                    🔍 SQL Injection
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Bypass Login Without a Password</h5>
+                    <p class="card-text">Try to log in as admin without knowing the password.</p>
+                    <div class="alert alert-{{ 'danger' if mode == 'vulnerable' else 'success' }} small">
+                        <strong>💡 Try:</strong> <code>admin' OR '1'='1' --</code>
+                    </div>
+                    <a href="/login?mode={{ mode }}" class="btn btn-{{ 'danger' if mode == 'vulnerable' else 'success' }} w-100">
+                        {{ '🔴 Try SQL Injection' if mode == 'vulnerable' else '🟢 See Secure Version' }}
+                    </a>
+                </div>
+                <div class="card-footer bg-light"><small>📚 Learn: Parameterized Queries</small></div>
+            </div>
+        </div>
+
+        <!-- XSS -->
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 card-hover {{ 'border-warning' if mode == 'vulnerable' else 'border-success' }}">
+                <div class="card-header {{ 'bg-warning' if mode == 'vulnerable' else 'bg-success' }} text-white">
+                    ⚠️ Cross-Site Scripting
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Inject a Script into a Page</h5>
+                    <p class="card-text">Register or search with a script payload and watch it run.</p>
+                    <div class="alert alert-{{ 'warning' if mode == 'vulnerable' else 'success' }} small">
+                        <strong>💡 Try:</strong> <code>&lt;script&gt;hackedBanner('XSS')&lt;/script&gt;</code>
+                    </div>
+                    <a href="/register?mode={{ mode }}" class="btn btn-{{ 'warning' if mode == 'vulnerable' else 'success' }} w-100">
+                        {{ '🔴 Try XSS' if mode == 'vulnerable' else '🟢 See Secure Version' }}
+                    </a>
+                </div>
+                <div class="card-footer bg-light"><small>📚 Learn: Output Escaping</small></div>
+            </div>
+        </div>
+
+        <!-- IDOR -->
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 card-hover {{ 'border-info' if mode == 'vulnerable' else 'border-success' }}">
+                <div class="card-header {{ 'bg-info' if mode == 'vulnerable' else 'bg-success' }} text-white">
+                    🔑 IDOR
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">View Someone Else's Data</h5>
+                    <p class="card-text">Log in, then load another user's profile by URL alone.</p>
+                    <div class="alert alert-{{ 'info' if mode == 'vulnerable' else 'success' }} small">
+                        <strong>💡 Try:</strong> <code>/profile/admin</code>
+                    </div>
+                    <a href="/profile/admin?mode={{ mode }}" class="btn btn-{{ 'info' if mode == 'vulnerable' else 'success' }} w-100">
+                        {{ '🔴 Try IDOR' if mode == 'vulnerable' else '🟢 See Secure Version' }}
+                    </a>
+                </div>
+                <div class="card-footer bg-light"><small>📚 Learn: Authorization Checks</small></div>
+            </div>
+        </div>
+
+        <!-- CSRF -->
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 card-hover {{ 'border-dark' if mode == 'vulnerable' else 'border-success' }}">
+                <div class="card-header {{ 'bg-dark' if mode == 'vulnerable' else 'bg-success' }} text-white">
+                    🎭 CSRF
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Trigger a Transfer From Another Site</h5>
+                    <p class="card-text">Log in here, then visit a "malicious" page that auto-submits.</p>
+                    <div class="alert alert-{{ 'secondary' if mode == 'vulnerable' else 'success' }} small">
+                        <strong>💡 Try:</strong> log in, then open the CSRF demo page
+                    </div>
+                    <a href="/csrf-demo?mode={{ mode }}" class="btn btn-{{ 'dark' if mode == 'vulnerable' else 'success' }} w-100">
+                        {{ '🔴 Try CSRF' if mode == 'vulnerable' else '🟢 See Secure Version' }}
+                    </a>
+                </div>
+                <div class="card-footer bg-light"><small>📚 Learn: Anti-CSRF Tokens</small></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">📚 Learning Resources</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>🎯 How This Works</h6>
+                            <ul>
+                                <li><strong>Vulnerable Mode:</strong> see how attacks work</li>
+                                <li><strong>Secure Mode:</strong> see how they're fixed</li>
+                                <li><strong>Try it yourself:</strong> hands-on learning</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>💡 What You'll Learn</h6>
+                            <ul>
+                                <li>SQL injection attacks</li>
+                                <li>Cross-site scripting (XSS)</li>
+                                <li>IDOR vulnerabilities</li>
+                                <li>Cross-site request forgery (CSRF)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>🔐 After This Project</h6>
+                            <ul>
+                                <li>Understand OWASP Top 10 patterns</li>
+                                <li>Think like a security reviewer</li>
+                                <li>Build safer web apps by default</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">👥 Test Accounts</div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3"><strong>admin</strong><br><small>password: admin123</small></div>
+                        <div class="col-md-3"><strong>alice</strong><br><small>password: alice123</small></div>
+                        <div class="col-md-3"><strong>bob</strong><br><small>password: bob123</small></div>
+                        <div class="col-md-3"><a href="/register?mode={{ mode }}" class="btn btn-primary btn-sm">Create New</a></div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        ⚠️ These passwords are stored in <strong>plaintext</strong> on purpose, so the SQL injection demo stays easy
+                        to read. Never do this in a real app &mdash; always hash passwords with something like bcrypt or argon2.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

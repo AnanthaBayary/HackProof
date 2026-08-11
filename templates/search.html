@@ -1,135 +1,64 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Search - HackProof</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .vulnerable-mode { border-left: 5px solid #dc3545; }
-        .secure-mode { border-left: 5px solid #198754; }
-        .code-block { background: #f4f4f4; padding: 10px; border-radius: 5px; font-family: monospace; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">🔐 HackProof</a>
-            <div class="ms-auto">
-                <span class="badge bg-{{ 'danger' if mode == 'vulnerable' else 'success' }}">
-                    {{ '🔴 Vulnerable' if mode == 'vulnerable' else '🟢 Secure' }}
-                </span>
-                <a href="/" class="btn btn-outline-light btn-sm ms-2">Home</a>
-                <a href="/dashboard?mode={{ mode }}" class="btn btn-outline-info btn-sm ms-1">Dashboard</a>
-                <a href="/logout" class="btn btn-outline-danger btn-sm ms-1">Logout</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row">
-            <!-- Search -->
-            <div class="col-md-6">
-                <div class="card {{ 'vulnerable-mode' if mode == 'vulnerable' else 'secure-mode' }}">
-                    <div class="card-header">
-                        <h4>🔍 Search</h4>
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card {{ 'vulnerable-mode' if mode == 'vulnerable' else 'secure-mode' }}">
+            <div class="card-header"><h4>🔍 Search</h4></div>
+            <div class="card-body">
+                {% if mode == 'vulnerable' %}
+                    <div class="alert alert-warning">
+                        <strong>💡 Try XSS:</strong> search for <code>&lt;script&gt;hackedBanner('XSS')&lt;/script&gt;</code>
                     </div>
-                    <div class="card-body">
-                        {% if mode == 'vulnerable' %}
-                            <div class="alert alert-warning">
-                                <strong>💡 Try XSS:</strong> 
-                                Search for <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
-                            </div>
-                        {% else %}
-                            <div class="alert alert-success">
-                                <strong>✅ Protected:</strong> XSS is blocked
-                            </div>
-                        {% endif %}
+                {% else %}
+                    <div class="alert alert-success"><strong>✅ Protected:</strong> search results are escaped before rendering</div>
+                {% endif %}
 
-                        <form method="GET" action="/search">
-                            <input type="hidden" name="mode" value="{{ mode }}">
-                            <div class="mb-3">
-                                <input type="text" name="q" class="form-control" 
-                                       placeholder="Search..." required>
-                            </div>
-                            <button type="submit" class="btn btn-{{ 'danger' if mode == 'vulnerable' else 'success' }} w-100">
-                                {{ '🔴 Search' if mode == 'vulnerable' else '🟢 Search' }}
-                            </button>
-                        </form>
+                <form method="GET" action="/search">
+                    <input type="hidden" name="mode" value="{{ mode }}">
+                    <div class="mb-3"><input type="text" name="q" class="form-control" placeholder="Search..." required></div>
+                    <button type="submit" class="btn btn-{{ 'danger' if mode == 'vulnerable' else 'success' }} w-100">
+                        {{ '🔴 Search' if mode == 'vulnerable' else '🟢 Search' }}
+                    </button>
+                </form>
 
-                        {% if query %}
-                            <hr>
-                            <h6>Results for: 
-                                {% if mode == 'vulnerable' %}
-                                    {{ query | safe }}
-                                {% else %}
-                                    {{ query | escape }}
-                                {% endif %}
-                            </h6>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Learning Content -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        📚 Reflected XSS
-                    </div>
-                    <div class="card-body">
-                        {% if mode == 'vulnerable' %}
-                            <h5 class="text-danger">🔴 Reflected XSS</h5>
-                            <p>The search query is directly reflected in the response:</p>
-                            <div class="code-block">
-                                <code>
-                                    Search Results for: {{ '{{ query | safe }}' }}
-                                </code>
-                            </div>
-                            
-                            <h6>💀 How to Exploit:</h6>
-                            <p>Search for:</p>
-                            <div class="code-block">
-                                <code>
-                                    &lt;script&gt;alert('XSS')&lt;/script&gt;
-                                </code>
-                            </div>
-                            
-                            <div class="alert alert-danger mt-3">
-                                <h6>⚠️ Impact:</h6>
-                                <ul>
-                                    <li>Steal session cookies</li>
-                                    <li>Redirect to malicious sites</li>
-                                    <li>Phishing attacks</li>
-                                </ul>
-                            </div>
-                            
-                            <div class="alert alert-success mt-3">
-                                <h6>✅ How to Fix:</h6>
-                                <p>Escape output:</p>
-                                <div class="code-block">
-                                    <code>
-                                        {{ '{{ query | escape }}' }}
-                                    </code>
-                                </div>
-                            </div>
-                        {% else %}
-                            <h5 class="text-success">🟢 XSS is Blocked!</h5>
-                            <p>Output is escaped before rendering:</p>
-                            <div class="code-block">
-                                <code>
-                                    {{ '{{ query | escape }}' }}
-                                </code>
-                            </div>
-                            
-                            <div class="alert alert-info mt-3">
-                                <h6>🔍 Try It Yourself:</h6>
-                                <p>Search for <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></p>
-                                <p>It will show as plain text!</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+                {% if query %}
+                    <hr>
+                    <h6>Results for: {% if mode == 'vulnerable' %}{{ query | safe }}{% else %}{{ query }}{% endif %}</h6>
+                {% endif %}
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">📚 Reflected XSS</div>
+            <div class="card-body">
+                {% if mode == 'vulnerable' %}
+                    <h5 class="text-danger">🔴 Reflected XSS</h5>
+                    <p>Your search term is echoed straight back into the page, unescaped:</p>
+                    <div class="code-block"><code>Results for: {{ '{{ query | safe }}' }}</code></div>
+                    <h6>💀 How to Exploit:</h6>
+                    <div class="code-block"><code>&lt;script&gt;hackedBanner('XSS')&lt;/script&gt;</code></div>
+                    <div class="alert alert-danger mt-3">
+                        <h6>⚠️ Impact:</h6>
+                        <ul><li>Steal session cookies</li><li>Redirect to a malicious site</li><li>Phishing inside a trusted domain</li></ul>
+                    </div>
+                    <div class="alert alert-success mt-3">
+                        <h6>✅ How to Fix:</h6>
+                        <div class="code-block"><code>Results for: {{ '{{ query }}' }}</code></div>
+                    </div>
+                {% else %}
+                    <h5 class="text-success">🟢 XSS is Blocked!</h5>
+                    <p>Output is left to Jinja2's default autoescaping:</p>
+                    <div class="code-block"><code>Results for: {{ '{{ query }}' }}</code></div>
+                    <div class="alert alert-info mt-3">
+                        <h6>🔍 Try It Yourself:</h6>
+                        <p>Search for <code>&lt;script&gt;hackedBanner('XSS')&lt;/script&gt;</code> &mdash; it shows up as plain text.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

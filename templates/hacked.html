@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Hacked!{% endblock %}
+{% block content %}
+<style>
+    .hacked-card { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.15); }
+    .hacked-hero {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: #fff; padding: 40px 32px; text-align: center;
+    }
+    .hacked-hero .trophy { font-size: 56px; }
+    .hacked-hero h1 { font-weight: 700; margin: 10px 0 4px; }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card hacked-card mb-4">
+            <div class="hacked-hero">
+                <div class="trophy">🏆</div>
+                <h1>You got in.</h1>
+                <p class="mb-0">Achievement unlocked: {{ title }}</p>
+            </div>
+            <div class="card-body p-4">
+                <h5>What just happened</h5>
+                <p>{{ explanation }}</p>
+
+                {% if payload %}
+                    <h6 class="mt-4">Payload used</h6>
+                    <div class="code-block"><code>{{ payload }}</code></div>
+                {% endif %}
+
+                <h6 class="mt-4">Why it worked</h6>
+                <p>{{ why }}</p>
+
+                <div class="alert alert-success mt-4">
+                    <h6 class="mb-1">✅ The fix</h6>
+                    <p class="mb-0">{{ fix }}</p>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a href="{{ retry_url }}" class="btn btn-success">See it fail in Secure Mode</a>
+                    <a href="/" class="btn btn-outline-secondary">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
